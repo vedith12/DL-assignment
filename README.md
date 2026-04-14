@@ -1,6 +1,6 @@
 # Dog Breed Classification using Deep Learning
 
-This repository holds the code, analytical reports, and visualizations for a comprehensive deep learning application aimed at classifying fine-grained image data: the diverse cross-sections of dog breeds. By progressing sequentially from simple neural network baselines to robust pre-trained mechanisms, this project showcases empirical state-of-the-art methods resolving intense visual similarities present across different dog breeds.
+This repository holds the central Jupyter Notebook and evaluation graphs for a comprehensive deep learning application aimed at classifying fine-grained image data: the diverse cross-sections of dog breeds. By progressing sequentially from simple neural network baselines to robust pre-trained mechanisms, this project showcases empirical state-of-the-art methods resolving intense visual similarities present across different dog breeds.
 
 ## Dataset
 The models are trained and validated against the **Stanford Dogs Dataset**:
@@ -28,31 +28,17 @@ This project explores a strict empirical progression evaluating the mathematical
 *   **ResNet50 Instance:** ~90.1%
 *   **Dual Attention Ensemble:** **91.2%**
 
-## Repository Contents Highlight
-*   **`DL_dogbreedclassifier_latest.ipynb`** : The central Jupyter Notebook establishing dataset pipelines (Augmentation), layer generation, optimizer exploration, and prediction validation.
-*   **`DL_Academic_Paper.tex` / `.md` / `.docx`** : Generated IEEE-formatted academic publications automatically structured directly extrapolating local convergence reports.
-*   **`plot_convergence.py`** : Standardized utility Python script structured to instantly export high-fidelity IEEE publication-ready training and convergence curves (comparative accuracy and loss matrices).
-*   **`parse.py` / `extract_pdf.py`** : Utility analysis modules meant for raw PDF string extraction and dense repetitive Jupyter log truncations.
+## Repository Contents
+*   **`DL_dogbreedclassifier_latest.ipynb`** : The central executed Jupyter Notebook establishing dataset pipelines (Augmentation), layer generation, optimizer exploration, and prediction validation.
+*   **`Graphs/`** *(or root images)*: High-fidelity convergence curves (comparative accuracy and loss matrices) plotting the validation capabilities across architectures.
 
 ## Usage
 
-### 1. Requirements Installation
-Ensure you have the core Deep Learning frameworks and utility graphing modules installed:
-```bash
-pip install tensorflow docx pypdf matplotlib seaborn
-```
+### Exploring the Notebook
+You can view the main `DL_dogbreedclassifier_latest.ipynb` directly through GitHub or open it in your preferred environment (like Google Colab or Jupyter Lab). The notebook is cleanly separated into modules demonstrating data processing all the way to ensemble prediction.
 
-### 2. Plotting the Analytics
-For rapid visual analysis of your resulting `.fit()` histories, leverage the custom plotting interface:
-```bash
-python plot_convergence.py
-```
-*Outputs `convergence_curves_accuracy.png` directly tailored for academic paper imports.*
+### Viewing the Results
+The convergence graphs (Accuracy/Loss curves) provided alongside the notebook illustrate the exact points at which traditional CNNs plateaued while Transfer Learning and Attention-based Ensemble models learned successfully and generalized robustly.
 
-### 3. Generating the Academic Word Document
-If modifying the local markdown variants of the formal write-ups, export a styled Word Document easily:
-```bash
-python create_paper_docx.py
-```
 ---
 *Authored for advanced Deep Learning empirical vision benchmarking.*
