@@ -1,0 +1,722 @@
+
+[MARKDOWN]
+# Assignment work
+
+[MARKDOWN]
+Using Stanford dogs dataset
+
+[CODE]
+from google.colab import drive
+drive.mount('/content/drive')...
+--- OUTPUT ---
+Drive already mounted at /content/drive; to attempt to forcibly remount, call drive.mount("/content/drive", force_remount=True).
+
+
+[CODE]
+!unzip /content/drive/MyDrive/DL-dataset/stanford-dogs-dataset.zip -d /content/drive/MyDrive/DL-data...
+--- OUTPUT ---
+
+
+[CODE]
+import os
+
+base_path = "/content/drive/MyDrive/DL-dataset"
+print(os.listdir(base_path))...
+--- OUTPUT ---
+['stanford-dogs-dataset.zip', 'annotations', 'images']
+
+
+[CODE]
+data_path = "/content/drive/MyDrive/DL-dataset/train_fixed"...
+--- OUTPUT ---
+
+[CODE]
+import tensorflow as tf
+
+dataset = tf.keras.preprocessing.image_dataset_from_directory(
+    data_pat...
+--- OUTPUT ---
+Found 20580 files belonging to 120 classes.
+
+
+[MARKDOWN]
+Week - 1
+
+[CODE]
+import tensorflow as tf
+
+data_path = "/content/drive/MyDrive/DL-dataset/train_fixed"
+
+dataset = tf.k...
+--- OUTPUT ---
+Found 20580 files belonging to 120 classes.
+
+
+[CODE]
+train_size = int(0.8 * len(dataset))
+
+train_ds = dataset.take(train_size)
+val_ds = dataset.skip(trai...
+--- OUTPUT ---
+
+[CODE]
+model = tf.keras.Sequential([
+    tf.keras.layers.Flatten(input_shape=(64, 64, 3)),
+    tf.keras.lay...
+--- OUTPUT ---
+
+[CODE]
+history = model.fit(
+    train_ds,
+    validation_data=val_ds,
+    epochs=5
+)...
+--- OUTPUT ---
+Epoch 1/5
+[1m515/515[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m151s[0m 289ms/step - accuracy: 0.0117 - loss: 4.8054 - val_accuracy: 0.0127 - val_loss: 4.7707
+Epoch 2/5
+[1m515/515[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m12s[0m 24ms/step - accuracy: 0.0187 - loss: 4.7111 - val_accuracy: 0.0154 - val_loss: 4.6771
+Epoch 3/5
+[1m515/515[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m12s[0m 24ms/step - accuracy: 0.0220 - loss: 4.6119 - val_accuracy: 0.0176 - val_loss: 4.6199
+Epoch 4/5
+[1m515/515[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m14s[0m 28ms/step - accuracy: 0.0234 - loss: 4.5774 - val_accuracy: 0.0200 - val_loss: 4.6034
+Epoch 5/5
+[1m515/515[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m14s[0m 28ms/step - accuracy: 0.0279 - loss: 4.5284 - val_accuracy: 0.0244 - val_loss: 4.6046
+[...]
+
+[MARKDOWN]
+here accuracy is very low bcz the model fails to capture spatial relationships in image data
+
+[MARKDOWN]
+loss decreases gradually, but validation loss fluctuates, indicating poor generalization
+
+[CODE]
+import matplotlib.pyplot as plt
+
+plt.plot(history.history['loss'], label='Train Loss')
+plt.plot(hist...
+--- OUTPUT ---
+<Figure size 640x480 with 1 Axes>
+[Image Output]
+
+[MARKDOWN]
+## Week 2 programs
+
+[MARKDOWN]
+Binary Classification on dog dataset
+
+[CODE]
+import tensorflow as tf
+
+data_path = "/content/drive/MyDrive/DL-dataset/train_fixed"
+
+dataset = tf.k...
+--- OUTPUT ---
+Found 20580 files belonging to 120 classes.
+n02085620-Chihuahua
+
+
+[CODE]
+#convert to binary
+def to_binary(x, y):
+    return x, tf.cast(y == 0, tf.int32)  # class 0 vs rest
+
+...
+--- OUTPUT ---
+
+[CODE]
+#flatten input
+binary_ds = binary_ds.map(lambda x, y: (tf.reshape(x, [tf.shape(x)[0], -1]), y))...
+--- OUTPUT ---
+
+[CODE]
+#converting to numpy
+import numpy as np
+
+X_list = []
+y_list = []
+
+for x, y in binary_ds.take(200):  ...
+--- OUTPUT ---
+(6400, 12288) (6400,)
+
+
+[CODE]
+# MP Perceptron (No Weights/Bias Concept)
+def mp_perceptron(x):
+    return 1 if np.sum(x) > 500 else...
+--- OUTPUT ---
+[0 0 0 0 0 0 0 0 0 0]
+[0 0 0 0 0 0 0 0 0 0]
+
+
+[CODE]
+# Perceptron (WITH WEIGHTS)
+from sklearn.linear_model import Perceptron
+
+model = Perceptron(fit_inte...
+--- OUTPUT ---
+[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0]
+
+
+[CODE]
+model_bias = Perceptron(fit_intercept=True, max_iter=1000)
+model_bias.fit(X, y)
+
+preds_bias = model_...
+--- OUTPUT ---
+[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0]
+
+
+[CODE]
+print("Number of 1s:", np.sum(y == 1))
+print("Number of 0s:", np.sum(y == 0))...
+--- OUTPUT ---
+Number of 1s: 54
+Number of 0s: 6346
+
+
+[CODE]
+pos_idx = np.where(y == 1)[0]
+neg_idx = np.where(y == 0)[0]
+
+# Take equal samples
+n = min(len(pos_id...
+--- OUTPUT ---
+(108, 12288) (108,)
+
+
+[CODE]
+model = Perceptron(fit_intercept=True, max_iter=1000)
+model.fit(X_bal, y_bal)
+
+preds = model.predict...
+--- OUTPUT ---
+[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+
+
+[CODE]
+# The perceptron predicted all zeros due to lack of
+# linear separability and inability to handle co...
+--- OUTPUT ---
+
+[CODE]
+sample = X[0].reshape(1, -1)
+
+print("Prediction:", model_bias.predict(sample))
+print("Actual:", y[0]...
+--- OUTPUT ---
+Prediction: [0]
+Actual: 0
+
+
+[MARKDOWN]
+## Week 3 - MLP + LR + Convergence
+
+[CODE]
+#load ds
+import tensorflow as tf
+
+data_path = "/content/drive/MyDrive/DL-dataset/train_fixed"
+
+datas...
+--- OUTPUT ---
+Found 20580 files belonging to 120 classes.
+
+
+[CODE]
+def train_model(lr):
+    model = tf.keras.Sequential([
+        tf.keras.layers.Flatten(input_shape=(...
+--- OUTPUT ---
+
+[CODE]
+lrs = [0.0001, 0.001, 0.01] #i am using different learning rates to observe the difference
+histories...
+--- OUTPUT ---
+Training with LR = 0.0001
+
+/usr/local/lib/python3.12/dist-packages/keras/src/layers/reshaping/flatten.py:37: UserWarning: Do not pass an `input_shape`/`input_dim` argument to a layer. When using Sequential models, prefer using an `Input(shape)` object as the first layer in the model instead.
+  super().__init__(**kwargs)
+
+Training with LR = 0.001
+Training with LR = 0.01
+
+
+[CODE]
+# Observation
+#learning rate = 0.0001 Training is very slow and loss decreases gradually, convergenc...
+--- OUTPUT ---
+
+[CODE]
+#plot graph
+import matplotlib.pyplot as plt
+
+for lr in lrs:
+    plt.plot(histories[lr].history['loss...
+--- OUTPUT ---
+<Figure size 640x480 with 1 Axes>
+[Image Output]
+
+[CODE]
+#plot validation graph
+for lr in lrs:
+    plt.plot(histories[lr].history['val_loss'], label=f"LR={lr...
+--- OUTPUT ---
+<Figure size 640x480 with 1 Axes>
+[Image Output]
+
+[MARKDOWN]
+## Week 4 - Optimizers
+
+[CODE]
+import tensorflow as tf
+
+data_path = "/content/drive/MyDrive/DL-dataset/train_fixed"
+
+dataset = tf.k...
+--- OUTPUT ---
+Found 20580 files belonging to 120 classes.
+
+
+[CODE]
+def create_model():
+    model = tf.keras.Sequential([
+        tf.keras.layers.Flatten(input_shape=(6...
+--- OUTPUT ---
+
+[CODE]
+optimizers = {
+    "SGD": tf.keras.optimizers.SGD(learning_rate=0.01),
+    "Momentum": tf.keras.opti...
+--- OUTPUT ---
+Training with SGD
+
+/usr/local/lib/python3.12/dist-packages/keras/src/layers/reshaping/flatten.py:37: UserWarning: Do not pass an `input_shape`/`input_dim` argument to a layer. When using Sequential models, prefer using an `Input(shape)` object as the first layer in the model instead.
+  super().__init__(**kwargs)
+
+Training with Momentum
+Training with RMSProp
+Training with Adam
+
+
+[CODE]
+import matplotlib.pyplot as plt
+
+for name in histories:
+    plt.plot(histories[name].history['loss']...
+--- OUTPUT ---
+<Figure size 640x480 with 1 Axes>
+[Image Output]
+
+[MARKDOWN]
+## Week 5 - Regularization techniques
+
+[CODE]
+import tensorflow as tf
+
+data_path = "/content/drive/MyDrive/DL-dataset/train_fixed"
+
+dataset = tf.k...
+--- OUTPUT ---
+Found 20580 files belonging to 120 classes.
+
+
+[CODE]
+import os
+import random
+import shutil
+
+src = "/content/drive/MyDrive/DL-dataset/train_fixed"
+dst = "...
+--- OUTPUT ---
+Created small dataset
+
+
+[CODE]
+import os
+import random
+
+for cls in os.listdir(dst):
+    cls_path = os.path.join(dst, cls)
+    image...
+--- OUTPUT ---
+
+[CODE]
+import tensorflow as tf
+
+dataset = tf.keras.preprocessing.image_dataset_from_directory(
+    data_pat...
+--- OUTPUT ---
+Found 20580 files belonging to 120 classes.
+
+
+[CODE]
+import tensorflow as tf
+
+data_path = "/content/train_small"
+
+dataset = tf.keras.preprocessing.image_...
+--- OUTPUT ---
+Found 1000 files belonging to 10 classes.
+
+
+[CODE]
+for x, y in dataset.take(1):
+    print("Max label:", tf.reduce_max(y).numpy())
+    print("Min label:...
+--- OUTPUT ---
+Max label: 9
+Min label: 0
+
+
+[CODE]
+dataset = dataset.map(lambda x, y: (x / 255.0, y))
+dataset = dataset.cache().prefetch(buffer_size=tf...
+--- OUTPUT ---
+
+[CODE]
+# L2
+
+from tensorflow.keras import regularizers
+
+model_l2 = tf.keras.Sequential([
+    tf.keras.layer...
+--- OUTPUT ---
+Epoch 1/10
+[1m25/25[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m4s[0m 28ms/step - accuracy: 0.1488 - loss: 2.6327 - val_accuracy: 0.1650 - val_loss: 2.4443
+Epoch 2/10
+[1m25/25[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step - accuracy: 0.2288 - loss: 2.3265 - val_accuracy: 0.2850 - val_loss: 2.2495
+Epoch 3/10
+[1m25/25[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m1s[0m 10ms/step - accuracy: 0.2925 - loss: 2.1569 - val_accuracy: 0.2750 - val_loss: 2.1859
+Epoch 4/10
+[1m25/25[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 9ms/step - accuracy: 0.3200 - loss: 2.0411 - val_accuracy: 0.2550 - val_loss: 2.1996
+Epoch 5/10
+[1m25/25[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 10ms/step - accuracy: 0.3675 - loss: 1.9512 - val_accuracy: 0.2700 - val_loss: 2.1163
+[...]
+
+[CODE]
+#dropout
+model_dropout = tf.keras.Sequential([
+    tf.keras.layers.Flatten(input_shape=(32, 32, 3)),...
+--- OUTPUT ---
+Epoch 1/10
+[1m25/25[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m2s[0m 15ms/step - accuracy: 0.0900 - loss: 2.5339 - val_accuracy: 0.1550 - val_loss: 2.2708
+Epoch 2/10
+[1m25/25[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 13ms/step - accuracy: 0.1300 - loss: 2.2974 - val_accuracy: 0.1850 - val_loss: 2.2874
+Epoch 3/10
+[1m25/25[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m1s[0m 12ms/step - accuracy: 0.1200 - loss: 2.2850 - val_accuracy: 0.1950 - val_loss: 2.2310
+Epoch 4/10
+[1m25/25[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m1s[0m 16ms/step - accuracy: 0.1287 - loss: 2.2649 - val_accuracy: 0.2000 - val_loss: 2.2593
+Epoch 5/10
+[1m25/25[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m1s[0m 17ms/step - accuracy: 0.1275 - loss: 2.2610 - val_accuracy: 0.2050 - val_loss: 2.1674
+[...]
+
+[CODE]
+#earlystopping
+early_stop = tf.keras.callbacks.EarlyStopping(
+    monitor='val_loss',
+    patience=2...
+--- OUTPUT ---
+Epoch 1/10
+[1m25/25[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m1s[0m 14ms/step - accuracy: 0.1425 - loss: 2.3595 - val_accuracy: 0.1900 - val_loss: 2.1939
+Epoch 2/10
+[1m25/25[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 8ms/step - accuracy: 0.2375 - loss: 2.0774 - val_accuracy: 0.1900 - val_loss: 2.1643
+Epoch 3/10
+[1m25/25[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 9ms/step - accuracy: 0.2788 - loss: 1.9427 - val_accuracy: 0.1850 - val_loss: 2.1201
+Epoch 4/10
+[1m25/25[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 8ms/step - accuracy: 0.3187 - loss: 1.8577 - val_accuracy: 0.2250 - val_loss: 2.0439
+Epoch 5/10
+[1m25/25[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 8ms/step - accuracy: 0.3550 - loss: 1.7747 - val_accuracy: 0.2450 - val_loss: 2.0201
+[...]
+
+[MARKDOWN]
+## Week 6 - CNN
+
+[CODE]
+import os, random, shutil
+
+src = "/content/drive/MyDrive/DL-dataset/train_fixed"
+dst = "/content/tra...
+--- OUTPUT ---
+Medium dataset ready
+
+
+[CODE]
+dataset = tf.keras.preprocessing.image_dataset_from_directory(
+    "/content/train_medium",
+    imag...
+--- OUTPUT ---
+Found 2500 files belonging to 25 classes.
+
+
+[CODE]
+#CNN model with augmentation
+data_aug = tf.keras.Sequential([
+    tf.keras.layers.RandomFlip("horizo...
+--- OUTPUT ---
+Epoch 1/5
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m47s[0m 653ms/step - accuracy: 0.0367 - loss: 3.2237 - val_accuracy: 0.0289 - val_loss: 3.2027
+Epoch 2/5
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m38s[0m 602ms/step - accuracy: 0.0570 - loss: 3.1878 - val_accuracy: 0.1054 - val_loss: 3.1194
+Epoch 3/5
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m47s[0m 749ms/step - accuracy: 0.0903 - loss: 3.0928 - val_accuracy: 0.1136 - val_loss: 3.0073
+Epoch 4/5
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m40s[0m 637ms/step - accuracy: 0.1280 - loss: 2.9546 - val_accuracy: 0.1116 - val_loss: 2.9627
+Epoch 5/5
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m39s[0m 610ms/step - accuracy: 0.1592 - loss: 2.8340 - val_accuracy: 0.1322 - val_loss: 2.8247
+[...]
+
+[MARKDOWN]
+## Week 7 - pretrained models
+
+[MARKDOWN]
+### Dataset Loading (Updated for 128x128 images and Data Augmentation)
+
+[CODE]
+import tensorflow as tf
+
+data_path = "/content/drive/MyDrive/DL-dataset/train_fixed"
+
+dataset = tf.k...
+--- OUTPUT ---
+Found 20580 files belonging to 120 classes.
+New dataset prepared with 128x128 images and data augmentation.
+
+
+[MARKDOWN]
+### VGG16 Model with Updated Dataset (New Cell)
+
+[CODE]
+import tensorflow as tf
+
+dataset = tf.keras.preprocessing.image_dataset_from_directory(
+    "/conten...
+--- OUTPUT ---
+Found 2500 files belonging to 25 classes.
+
+
+[CODE]
+# VGG16
+from tensorflow.keras.applications import VGG16
+
+base_model = VGG16(
+    weights='imagenet',...
+--- OUTPUT ---
+Downloading data from https://storage.googleapis.com/tensorflow/keras-applications/vgg16/vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5
+[1m58889256/58889256[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 0us/step
+Epoch 1/3
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m321s[0m 5s/step - accuracy: 0.1235 - loss: 3.0759 - val_accuracy: 0.1983 - val_loss: 2.7995
+Epoch 2/3
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m292s[0m 5s/step - accuracy: 0.3016 - loss: 2.4028 - val_accuracy: 0.2934 - val_loss: 2.5081
+Epoch 3/3
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m345s[0m 5s/step - accuracy: 0.4717 - loss: 1.8931 - val_accuracy: 0.3037 - val_loss: 2.4005
+[1m16/16[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m55s[0m 3s/step - accuracy: 0.3037 - loss: 2.4005
+VGG16 Accuracy: 0.30371901392936707
+[...]
+
+[CODE]
+#Resnet
+from tensorflow.keras.applications import ResNet50
+from tensorflow.keras.applications.resnet...
+--- OUTPUT ---
+Found 2500 files belonging to 25 classes.
+Epoch 1/3
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m527s[0m 8s/step - accuracy: 0.7088 - loss: 1.0509 - val_accuracy: 0.8657 - val_loss: 0.4259
+Epoch 2/3
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m535s[0m 9s/step - accuracy: 0.9425 - loss: 0.1974 - val_accuracy: 0.9029 - val_loss: 0.3043
+Epoch 3/3
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m473s[0m 8s/step - accuracy: 0.9747 - loss: 0.0967 - val_accuracy: 0.9008 - val_loss: 0.3579
+[1m16/16[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m91s[0m 6s/step - accuracy: 0.9008 - loss: 0.3579
+ResNet Accuracy: 0.9008264541625977
+
+
+[MARKDOWN]
+Initial performance was poor due to incorrect input size and lack of preprocessing. After applying proper preprocessing and resizing, accuracy improved significantly.
+
+[CODE]
+#mobileNet
+from tensorflow.keras.applications import MobileNetV2
+
+base_model = MobileNetV2(
+    weig...
+--- OUTPUT ---
+Downloading data from https://storage.googleapis.com/tensorflow/keras-applications/mobilenet_v2/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_1.0_96_no_top.h5
+[1m9406464/9406464[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 0us/step
+Epoch 1/3
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m27s[0m 321ms/step - accuracy: 0.5660 - loss: 1.5326 - val_accuracy: 0.7562 - val_loss: 0.7670
+Epoch 2/3
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m19s[0m 297ms/step - accuracy: 0.8760 - loss: 0.4152 - val_accuracy: 0.7665 - val_loss: 0.7274
+Epoch 3/3
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m18s[0m 288ms/step - accuracy: 0.9663 - loss: 0.1865 - val_accuracy: 0.7727 - val_loss: 0.7506
+[1m16/16[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m3s[0m 188ms/step - accuracy: 0.7727 - loss: 0.7506
+MobileNet Accuracy: 0.7727272510528564
+[...]
+
+[MARKDOWN]
+## Week 8 - Visualisation
+
+[CODE]
+# take one sample
+for img, label in train_ds.take(1):
+    sample = img[0:1]
+
+# build model (importan...
+--- OUTPUT ---
+[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m5s[0m 5s/step
+
+<Figure size 640x480 with 6 Axes>
+[Image Output]
+
+[CODE]
+import tensorflow as tf
+import matplotlib.pyplot as plt
+
+for img, label in train_ds.take(1):
+    sam...
+--- OUTPUT ---
+<Figure size 640x480 with 1 Axes>
+[Image Output]
+
+[MARKDOWN]
+## Week 9 - AutoEncoder
+
+[CODE]
+import tensorflow as tf
+import matplotlib.pyplot as plt
+
+dataset = tf.keras.preprocessing.image_data...
+--- OUTPUT ---
+Found 1000 files.
+Epoch 1/5
+[1m32/32[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m25s[0m 574ms/step - loss: 0.0434
+Epoch 2/5
+[1m32/32[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m17s[0m 545ms/step - loss: 0.0180
+Epoch 3/5
+[1m32/32[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m19s[0m 601ms/step - loss: 0.0144
+Epoch 4/5
+[1m32/32[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m19s[0m 574ms/step - loss: 0.0125
+Epoch 5/5
+[...]
+<Figure size 600x300 with 2 Axes>
+[Image Output]
+
+[MARKDOWN]
+# RESEARCH WORK
+
+[MARKDOWN]
+I have chosen https://ieeexplore.ieee.org/abstract/document/10192536 research paper as reference for my work, I have understood that they are using ensemble of pretrained models to achieve 92% accuracy
+
+[MARKDOWN]
+step 1 : dataset and setup
+
+[CODE]
+import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
+
+IMG_SIZE = 224
+BATCH_SIZ...
+--- OUTPUT ---
+Found 2500 files belonging to 25 classes.
+Using 2000 files for training.
+Found 2500 files belonging to 25 classes.
+Using 500 files for validation.
+25
+
+
+[MARKDOWN]
+step 2 - attention + transfer learing
+
+[CODE]
+from tensorflow.keras.applications import EfficientNetB0
+
+base_model = EfficientNetB0(
+    weights='...
+--- OUTPUT ---
+Downloading data from https://storage.googleapis.com/keras-applications/efficientnetb0_notop.h5
+[1m16705208/16705208[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m1s[0m 0us/step
+Epoch 1/5
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m76s[0m 676ms/step - accuracy: 0.0415 - loss: 3.2380 - val_accuracy: 0.0340 - val_loss: 3.2290
+Epoch 2/5
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m3s[0m 40ms/step - accuracy: 0.0390 - loss: 3.2277 - val_accuracy: 0.0340 - val_loss: 3.2254
+Epoch 3/5
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m3s[0m 40ms/step - accuracy: 0.0380 - loss: 3.2213 - val_accuracy: 0.0240 - val_loss: 3.2249
+Epoch 4/5
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m2s[0m 38ms/step - accuracy: 0.0425 - loss: 3.2192 - val_accuracy: 0.0300 - val_loss: 3.2315
+[...]
+
+[CODE]
+# Unfreeze last layers
+base_model.trainable = True
+
+for layer in base_model.layers[:-20]:
+    layer....
+--- OUTPUT ---
+Epoch 1/3
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m67s[0m 476ms/step - accuracy: 0.0395 - loss: 3.2257 - val_accuracy: 0.0240 - val_loss: 3.2227
+Epoch 2/3
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m3s[0m 45ms/step - accuracy: 0.0415 - loss: 3.2237 - val_accuracy: 0.0240 - val_loss: 3.2228
+Epoch 3/3
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m3s[0m 44ms/step - accuracy: 0.0405 - loss: 3.2237 - val_accuracy: 0.0280 - val_loss: 3.2226
+
+
+[CODE]
+from tensorflow.keras.applications import MobileNetV2
+
+base_model2 = MobileNetV2(
+    weights='image...
+--- OUTPUT ---
+Epoch 1/5
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m44s[0m 425ms/step - accuracy: 0.7545 - loss: 0.9793 - val_accuracy: 0.8640 - val_loss: 0.3884
+Epoch 2/5
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m2s[0m 31ms/step - accuracy: 0.9530 - loss: 0.1765 - val_accuracy: 0.8960 - val_loss: 0.3361
+Epoch 3/5
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m2s[0m 30ms/step - accuracy: 0.9785 - loss: 0.0942 - val_accuracy: 0.8920 - val_loss: 0.3217
+Epoch 4/5
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m2s[0m 30ms/step - accuracy: 0.9900 - loss: 0.0576 - val_accuracy: 0.8840 - val_loss: 0.3958
+Epoch 5/5
+[1m63/63[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m2s[0m 30ms/step - accuracy: 0.9950 - loss: 0.0353 - val_accuracy: 0.9140 - val_loss: 0.2789
+[...]
+
+[CODE]
+import numpy as np
+
+def ensemble_predict(dataset):
+    preds1 = model.predict(dataset)
+    preds2 = ...
+--- OUTPUT ---
+[1m16/16[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m1s[0m 52ms/step
+[1m16/16[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 27ms/step
+Ensemble Accuracy: 91.2 %
+
+
+[MARKDOWN]
+### **Observations**
+here i am using a medium sized dataset, and i am still getting around 91% accuracy, if i use the entire dataset, generalization can improve and we can observe increase in accuracy upto 92-93%.
+accuracy will firstly dip because training will become harder and more variations in images but as more epochs pass, model gets finetuned and then increase is observed.
+
+
+
+
+[MARKDOWN]
+**What is happening here?**
+
+1. firstly dog dataset is loaded
+2. then images are preprocessed by resized them to a fixed size and normalizing the pixel values to a range of 0 to 1
+3. then we are feeding the preprocessed images to a pretrained CNN like EfficientNet or MobileNet which act as a feature extractor and identifies low level and high level patterns like edges, textures and shapes
+4. the extracted feature maps are then passed through an **attention** mechanism,
+**attention mechanism** -- assigns importance weights to different regions of the image, allowing the model to focus on key features such as the dogs face, ear and fur patterns.
+5. these refined maps are then reduced into a compact representation using global average pooling, converting spatial information into a feature vector.
+6. The feature vector is passed through fully connected (dense) layers, which learn complex relationships between features and prepare the data for classification.
+7. Dropout is applied during this stage to randomly deactivate neurons, preventing overfitting and improving the models ability to generalize
+8. final dense layer is a softmax activation function that outputs probabilities for each of the 120 dog breeds, and the class with the highest probability is selcted as the predicted breed
+9. we are finetuning during training by unfreezing the deeper layers of the pretrained model, so that it can adapt to the dataset
+10. multiple models are trained and combined using an ensemble approach, where their predictions are averaged to produce a stable final output
+11. so in conclusion the mechanisms used are
+a. transfer learning
+b. attention mechanism
+c. finetuning
+d. ensemble learning
